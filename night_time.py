@@ -1,6 +1,5 @@
 import sys
 import json
-import math
 import datetime
 import copy
 from skyfield import api
@@ -21,7 +20,8 @@ def main():
     arrival_time = input_string[12:16]
 
     if(len(input_string) > 16):
-        flight_date = datetime.datetime.strptime(input_string[16:], '%Y%m%d').replace(tzinfo=datetime.timezone.utc)
+        flight_date = datetime.datetime.strptime(
+            input_string[16:], '%Y%m%d').replace(tzinfo=datetime.timezone.utc)
     else:
         flight_date = datetime.datetime.utcnow().date()
 
@@ -38,9 +38,15 @@ def main():
     )
 
     # calculate flight time
-    departure["time"] = datetime.datetime.strptime(f"{flight_date.strftime('%Y%m%d')}{departure_time}", '%Y%m%d%H%M').replace(tzinfo=datetime.timezone.utc)
-    arrival["time"] = datetime.datetime.strptime(f"{flight_date.strftime('%Y%m%d')}{arrival_time}", '%Y%m%d%H%M').replace(tzinfo=datetime.timezone.utc)
-    flight_time = arrival["time"]-departure["time"]
+    departure["time"] = datetime.datetime.strptime(
+        f"{flight_date.strftime('%Y%m%d')}{departure_time}",
+        '%Y%m%d%H%M').replace(tzinfo=datetime.timezone.utc)
+
+    arrival["time"] = datetime.datetime.strptime(
+        f"{flight_date.strftime('%Y%m%d')}{arrival_time}",
+        '%Y%m%d%H%M').replace(tzinfo=datetime.timezone.utc)
+
+    flight_time = arrival["time"] - departure["time"]
     if flight_time.days < 0:
         flight_time += datetime.timedelta(days=1)
         arrival["time"] += datetime.timedelta(days=1)
@@ -50,7 +56,7 @@ def main():
     print(f"Distance:  {int(L)}nm Flight time: {flight_time}")
 
     # average airplane speed based on block time, kt
-    Vplane = L/(flight_time.seconds/3600)
+    Vplane = L / (flight_time.seconds / 3600)
 
     # get some sun parameters
     (departure["sunrise"], departure["sunset"]) = get_sun_data(departure["lat"], departure["lon"], departure["time"])
@@ -66,18 +72,17 @@ def main():
         print("Flight from day to night, night landing")
 
         x_point = meet_with_sun(departure, arrival, Vplane, "sunset")
-        nt = (arrival["time"] - x_point["time"]).seconds/3600
+        nt = (arrival["time"] - x_point["time"]).seconds / 3600
 
     elif (arrival["sunrise"] <= arrival["time"] <= arrival["sunset"]):
         print("Flight from night to day, day landing")
 
         x_point = meet_with_sun(departure, arrival, Vplane, "sunrise")
-        nt = (x_point["time"] - departure["time"]).seconds/3600
+        nt = (x_point["time"] - departure["time"]).seconds / 3600
 
     else:
         print("Full night time")
-        nt = flight_time.seconds/3600
-
+        nt = flight_time.seconds / 3600
 
     print(f"Night time: {convert_time(nt)}")
 
@@ -101,14 +106,14 @@ def meet_with_sun(departure, arrival, Vplane, target):
 
         (x_point["sunrise"], x_point["sunset"]) = get_sun_data(x_point["lat"], x_point["lon"], departure["time"])
         D = calculate_distance(departure["lat"], departure["lon"], x_point["lat"], x_point["lon"])
-        x_point["time"] = departure["time"] + datetime.timedelta(hours=D/Vplane)
+        x_point["time"] = departure["time"] + datetime.timedelta(hours=(D / Vplane))
 
         diff = (x_point["time"] - x_point[target])
         if diff.days < 0:
             diff += datetime.timedelta(days=1)
-            diff_m = - 24*60 + diff.seconds/60
+            diff_m = - 24 * 60 + diff.seconds / 60
         else:
-            diff_m = diff.seconds/60
+            diff_m = diff.seconds / 60
 
         print(f"{x_point['lat']:.2f}\t{x_point['lon']:.2f}\t{D:.2f}\t{x_point['time'].strftime(ui_fmt)}\t{x_point[target].strftime(ui_fmt)}\t{diff_m:.2f}")
 
@@ -144,35 +149,18 @@ def get_sun_data(lat, lon, flight_date):
 
     sunrise = None
     sunset = None
-    twilight_morning = None
-    twilight_evening = None
 
     bluffton = api.Topos(lat, lon)
     # first get sunrise and sunset times
-    t, y = almanac.find_discrete(ts.utc(flight_date.date()), ts.utc(flight_date.date()+datetime.timedelta(days=1)), almanac.sunrise_sunset(e, bluffton))
+    t, y = almanac.find_discrete(ts.utc(flight_date.date()), ts.utc(flight_date.date() + datetime.timedelta(days=1)), almanac.sunrise_sunset(e, bluffton))
     for ti, yi in zip(t, y):
         if yi:
             sunrise = ti.utc_iso()
         else:
             sunset = ti.utc_iso()
 
-    # now let's get twilight times
-    # t, y = almanac.find_discrete(ts.utc(flight_date.date()), ts.utc(flight_date.date()+datetime.timedelta(days=1)), almanac.dark_twilight_day(e, bluffton))
-    # for ti, yi in zip(t, y):
-    #     # print(ti.utc_iso(), almanac.TWILIGHTS[yi])
-    #     if almanac.TWILIGHTS[yi] == "Civil twilight":
-    #         if ti.utc_iso() <= sunrise:
-    #             twilight_morning = ti.utc_iso()
-    #         elif ti.utc_iso() >= sunset:
-    #             twilight_evening = ti.utc_iso()
-    #         else:
-    #             print("Something wrong when getting twilights times :(")
-    #             exit()
-
-    # return (datetime.datetime.strptime(twilight_morning, sky_fmt).replace(tzinfo=datetime.timezone.utc),
-    #         datetime.datetime.strptime(twilight_evening, sky_fmt).replace(tzinfo=datetime.timezone.utc))
-    return (datetime.datetime.strptime(sunrise, sky_fmt).replace(tzinfo=datetime.timezone.utc)-datetime.timedelta(minutes=30),
-            datetime.datetime.strptime(sunset, sky_fmt).replace(tzinfo=datetime.timezone.utc)+datetime.timedelta(minutes=30))
+    return (datetime.datetime.strptime(sunrise, sky_fmt).replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(minutes=30),
+            datetime.datetime.strptime(sunset, sky_fmt).replace(tzinfo=datetime.timezone.utc) + datetime.timedelta(minutes=30))
 
 
 def calculate_distance(lat1, lon1, lat2, lon2):
@@ -181,7 +169,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     point2 = wgs84.GeoPoint(latitude=lat2, longitude=lon2, degrees=True)
     s_12, _azi1, _azi2 = point1.distance_and_azimuth(point2)
 
-    return s_12/1000/1.852  # nm
+    return s_12 / 1000 / 1.852  # nm
 
 
 def convert_time(nt):
