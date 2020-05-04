@@ -6,6 +6,10 @@ This is a beta version, tested just on few flights.
 
 The logic is simple. It finds a midpoint on the route, check the time when airplane will be there and compares it with sunset/sunrise at this point. If the difference is too big it takes front/rear part of the route and check the midpoint again and again...
 
+## Known issues
+
+It will not calculate the night time if your departured before sunset and arrived after sunrise - damn who ever fly these routes
+
 
 ## How to use
 
