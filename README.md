@@ -4,6 +4,8 @@ Flight night time calculator for pilots. It's a simplified way to calculate wher
 
 This is a beta version, tested just on few flights.
 
+The logic is simple. It finds a midpoint on the route, check the time when airplane will be there and compares it with sunset/sunrise at this point. If the difference is too big it takes front/rear part of the route and check the midpoint again and again...
+
 
 ## How to use
 
