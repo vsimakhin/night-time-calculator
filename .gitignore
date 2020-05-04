@@ -1,0 +1,9 @@
+.vscode
+logbook.docx
+*.pdf
+venv
+__pycache__
+
+de421.bsp
+deltat.*
+Leap_*
