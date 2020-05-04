@@ -22,14 +22,12 @@ Departure Sunrise: 2020-04-01 04:08 Sunset: 2020-04-01 18:05
 Arrival   Sunrise: 2020-04-01 03:53 Sunset: 2020-04-01 17:49
 Flight from day to night, night landing
 Departure lat/lon: 50.10 14.26 | Arrival lat/lon: 49.70 18.11
-lat	lon	dist	time on route		sunset			diff (minutes)
-49.91	16.19	75.67	2020-04-01 17:45	2020-04-01 17:57	-12.60
-49.81	17.15	113.51	2020-04-01 17:57	2020-04-01 17:53	3.85
-49.86	16.67	94.59	2020-04-01 17:51	2020-04-01 17:55	-4.38
-49.84	16.91	104.05	2020-04-01 17:54	2020-04-01 17:54	-0.27
+ lat    lon    dist   time on route     flt time  sunset             diff (min)
+ 49.91  16.19   75.67 2020-04-01 17:45  0h 25m    2020-04-01 17:57   -12.60
+ 49.81  17.15  113.51 2020-04-01 17:57  0h 37m    2020-04-01 17:53     3.85
+ 49.86  16.67   94.59 2020-04-01 17:51  0h 31m    2020-04-01 17:55    -4.38
+ 49.84  16.91  104.05 2020-04-01 17:54  0h 34m    2020-04-01 17:54    -0.27
 Night time: 0h 15m
-
-
 ```
 
 Input parameter format is AAAABBBBCCCCDDDD[YYYYMMDD] where
