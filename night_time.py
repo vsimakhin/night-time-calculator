@@ -97,7 +97,7 @@ def meet_with_sun(departure, arrival, Vplane, target):
     end_point = copy.copy(arrival)
 
     print(f"Departure lat/lon: {start_point['lat']:.2f} {start_point['lon']:.2f} | Arrival lat/lon: {end_point['lat']:.2f} {end_point['lon']:.2f}")
-    print(f"lat\tlon\tdist\ttime on route\t\t{target}\t\t\tdiff (minutes)")
+    print(f" lat    lon    dist   time on route     flt time  {target:17s}  diff (min)")
     while((i < max_iterations) and not found_x):
         i += 1
 
@@ -106,7 +106,8 @@ def meet_with_sun(departure, arrival, Vplane, target):
 
         (x_point["sunrise"], x_point["sunset"]) = get_sun_data(x_point["lat"], x_point["lon"], departure["time"])
         D = calculate_distance(departure["lat"], departure["lon"], x_point["lat"], x_point["lon"])
-        x_point["time"] = departure["time"] + datetime.timedelta(hours=(D / Vplane))
+        flight_time = datetime.timedelta(hours=(D / Vplane))
+        x_point["time"] = departure["time"] + flight_time
 
         diff = (x_point["time"] - x_point[target])
         if diff.days < 0:
@@ -115,7 +116,13 @@ def meet_with_sun(departure, arrival, Vplane, target):
         else:
             diff_m = diff.seconds / 60
 
-        print(f"{x_point['lat']:.2f}\t{x_point['lon']:.2f}\t{D:.2f}\t{x_point['time'].strftime(ui_fmt)}\t{x_point[target].strftime(ui_fmt)}\t{diff_m:.2f}")
+        print(f"{x_point['lat']:6.2f} "
+              f"{x_point['lon']:6.2f} "
+              f"{D:7.2f} "
+              f"{x_point['time'].strftime(ui_fmt):17s} "
+              f"{convert_time(flight_time.seconds / 3600):10s}"
+              f"{x_point[target].strftime(ui_fmt):17s} "
+              f"{diff_m:7.2f}")
 
         if abs(diff_m) >= max_diff_minutes:
             if diff_m > 0:
